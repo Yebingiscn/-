@@ -11,11 +11,14 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
     @Resource
     ShipOwnerMapper shipOwnerMapper;
+    Logger logger;
 
     @Override
     public IPage<ShipOwner> selectAllOwner(int current_page, int total) {
@@ -38,21 +41,16 @@ public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
 
     @Override
     public String addOwner(ShipOwner shipOwner) {
-        int insert = shipOwnerMapper.insert(shipOwner);
-        if (insert != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return shipOwnerMapper.insert(shipOwner) != -1 ? "添加成功" : "添加失败";
     }
 
 
     @Override
     public String delOwner(int owner_id) {
-        int delete = shipOwnerMapper.deleteById(owner_id);
-        if (delete != -1) {
-            return "删除成功";
-        } else {
+        try {
+            return shipOwnerMapper.deleteById(owner_id) != -1 ? "删除成功" : "删除失败";
+        } catch (Exception exception) {
+            logger.log(Level.WARNING, exception.toString());
             return "删除失败";
         }
     }
@@ -62,12 +60,7 @@ public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
         UpdateWrapper<ShipOwner> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("sowner_id", shipOwner.getOwner_id())
                 .set("ship_owner", shipOwner.getShip_owner()).set("telephone", shipOwner.getTelephone());
-        int update = shipOwnerMapper.update(null, updateWrapper);
-        if (update != -1) {
-            return "更新成功";
-        } else {
-            return "更新失败";
-        }
+        return shipOwnerMapper.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
     }
 
     @Override

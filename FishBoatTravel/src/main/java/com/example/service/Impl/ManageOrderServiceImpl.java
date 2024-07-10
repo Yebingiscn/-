@@ -55,12 +55,7 @@ public class ManageOrderServiceImpl implements ManageOrderService {
                 .set("order_date", order.getOrder_date()).set("sum_price", order.getSum_price())
                 .set("friend_info", order.getFriend_info()).set("order_state", order.getOrder_state())
                 .set("ship", order.getShip());
-        int update = orderMapping.update(null, updateWrapper);
-        if (update != -1) {
-            return "更新成功";
-        } else {
-            return "更新失败";
-        }
+        return orderMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
     }
 
     @Override
@@ -77,7 +72,9 @@ public class ManageOrderServiceImpl implements ManageOrderService {
             queryWrapper.eq("order_date", order.getOrder_date());
             List<Order> orders = orderMapping.selectList(queryWrapper);
             return orders.get(0).getOrder_id();
-        } else return -1;
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -129,11 +126,6 @@ public class ManageOrderServiceImpl implements ManageOrderService {
     public String payCancel(int order_id) {
         UpdateWrapper<Order> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("order_id", order_id).set("order_state", "已取消");
-        int update = orderMapping.update(null, updateWrapper);
-        if (update != -1) {
-            return "取消成功";
-        } else {
-            return "取消失败";
-        }
+        return orderMapping.update(null, updateWrapper) != -1 ? "取消成功" : "取消失败";
     }
 }

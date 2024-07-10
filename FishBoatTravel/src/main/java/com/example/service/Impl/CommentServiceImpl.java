@@ -2,7 +2,6 @@ package com.example.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.entity.Comment;
-import com.example.entity.SComment;
 import com.example.mapper.CommentMapper;
 import com.example.service.CommentService;
 import jakarta.annotation.Resource;
@@ -20,12 +19,7 @@ public class CommentServiceImpl implements CommentService {
     public String addComment(Comment comment) {
         Date date = new Date(System.currentTimeMillis());//获取当前时间
         comment.setRate_time(date);
-        int insert = commentMapper.insert(comment);
-        if (insert != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return commentMapper.insert(comment) != -1 ? "添加成功" : "添加失败";
     }
 
     @Override

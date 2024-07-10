@@ -12,28 +12,26 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class AreaServiceImpl implements AreaService {
     @Resource
     AreaMapping areaMapping;
+    Logger logger;
 
     @Override
     public String addArea(String area_name, String area_province) {
         QueryWrapper<Area> queryWrapper = new QueryWrapper<>();
         queryWrapper.select();
         queryWrapper.eq("area_name", area_name);
-        System.out.println(areaMapping.selectList(queryWrapper).isEmpty());
+        logger.log(Level.INFO, "" + areaMapping.selectList(queryWrapper).isEmpty());
         if (areaMapping.selectList(queryWrapper).isEmpty()) {
             Area area = new Area();
             area.setArea_name(area_name);
             area.setArea_province(area_province);
-            int insert = areaMapping.insert(area);
-            if (insert != -1) {
-                return "添加成功";
-            } else {
-                return "添加失败";
-            }
+            return areaMapping.insert(area) != -1 ? "添加成功" : "添加失败";
         } else {
             return "添加成功";
         }
@@ -44,12 +42,7 @@ public class AreaServiceImpl implements AreaService {
         UpdateWrapper<Area> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("area_id", area.getArea_id())
                 .set("area_content", area.getArea_content());
-        int update = areaMapping.update(null, updateWrapper);
-        if (update != -1) {
-            return "更新成功";
-        } else {
-            return "更新失败";
-        }
+        return areaMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
     }
 
     @Override

@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class AdminServiceImpl implements AdminService {
     @Resource
     UserMapper userMapper;
+    Logger logger;
 
     @Override
     public String toLoginAdmin(User user) {
@@ -26,17 +29,13 @@ public class AdminServiceImpl implements AdminService {
             return "账户不存在，请先登录";
         }
         User user1 = users.get(0);
-        System.out.println(users);
+        logger.log(Level.INFO, user.toString());
         if (user1.getIs_admin() != 1) {
             return "你不是管理员";
         }
-        if (!user1.getPassword().equals(user.getPassword())) {
-            System.out.println(user1.getPassword());
-            System.out.println(user.getPassword());
-            return "密码错误";
-        } else {
-            return "登录成功";
-        }
+        logger.log(Level.INFO, "用户密码" + user1.getPassword());
+        logger.log(Level.INFO, "保存的密码" + user1.getPassword());
+        return !user1.getPassword().equals(user.getPassword()) ? "密码错误" : "登陆成功";
     }
 
     @Override
@@ -59,23 +58,13 @@ public class AdminServiceImpl implements AdminService {
     public String addAdmin(User user) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user.getUser_name()).set("is_admin", 1);
-        int update = userMapper.update(null, updateWrapper);
-        if (update != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return -1 != userMapper.update(null, updateWrapper) ? "添加成功" : "添加失败";
     }
 
     @Override
     public String delAdmin(User user) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user.getUser_name()).set("is_admin", 0);
-        int update = userMapper.update(null, updateWrapper);
-        if (update != -1) {
-            return "删除成功";
-        } else {
-            return "删除失败";
-        }
+        return userMapper.update(null, updateWrapper) != -1 ? "删除成功":"删除失败";
     }
 }
