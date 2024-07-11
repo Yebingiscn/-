@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class ManageOrderServiceImpl implements ManageOrderService {
@@ -27,6 +29,7 @@ public class ManageOrderServiceImpl implements ManageOrderService {
     JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     String from;
+    Logger logger;
 
     @Override
     public IPage<Order> getAllOrder(int current_page, int total) {
@@ -65,8 +68,7 @@ public class ManageOrderServiceImpl implements ManageOrderService {
 
     @Override
     public int addOrder(Order order) {
-        int insert = orderMapping.insert(order);
-        if (insert != -1) {
+        if (orderMapping.insert(order) != -1) {
             QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
             queryWrapper.select();
             queryWrapper.eq("order_date", order.getOrder_date());
@@ -99,27 +101,36 @@ public class ManageOrderServiceImpl implements ManageOrderService {
         updateWrapper.eq("order_id", order_id).set("order_state", "已支付");
         int update = orderMapping.update(null, updateWrapper);
         if (update != -1) {
-            QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
-            queryWrapper.select();
-            queryWrapper.eq("order_id", order_id);
-            List<Order> orders = orderMapping.selectList(queryWrapper);
-            Order order = orders.get(0);
-            System.out.println(order);
-            String mail = manageUserService.getMail(order.getUser_name());
-            System.out.println(mail);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-            simpleMailMessage.setSubject("[渔之旅]新订单通知");
-            simpleMailMessage.setText("感谢你选择渔之旅\n你的路线：" + order.getRoad_name() + " 已订购，预计出发时间为"
-                    + simpleDateFormat.format(order.getOrder_date()) +
-                    "\n如果你有任何疑问，欢迎联系渔之旅。联系电话：400-8820-8830，具体上船时间及安排会有工作人员电话与你联系");
-            simpleMailMessage.setTo(mail);
-            simpleMailMessage.setFrom(from);
-            mailSender.send(simpleMailMessage);
+            try {
+                sendEmail(order_id);
+            } catch (Exception exception) {
+                logger.log(Level.WARNING,exception.toString());
+                return "发送邮件失败，请联系渔之旅";
+            }
             return "更新成功";
         } else {
             return "更新失败";
         }
+    }
+
+    public void sendEmail(int order_id) {
+        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select();
+        queryWrapper.eq("order_id", order_id);
+        List<Order> orders = orderMapping.selectList(queryWrapper);
+        Order order = orders.get(0);
+        logger.log(Level.INFO, order.toString());
+        String mail = manageUserService.getMail(order.getUser_name());
+        logger.log(Level.INFO, mail);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setSubject("[渔之旅]新订单通知");
+        simpleMailMessage.setText("感谢你选择渔之旅\n你的路线：" + order.getRoad_name() + " 已订购，预计出发时间为"
+                + simpleDateFormat.format(order.getOrder_date()) +
+                "\n如果你有任何疑问，欢迎联系渔之旅。联系电话：400-8820-8830，具体上船时间及安排会有工作人员电话与你联系");
+        simpleMailMessage.setTo(mail);
+        simpleMailMessage.setFrom(from);
+        mailSender.send(simpleMailMessage);
     }
 
     @Override

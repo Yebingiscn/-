@@ -19,12 +19,7 @@ public class SCommentServiceImpl implements SCommentService {
     public String addSComment(SComment sComment) {
         Date date = new Date(System.currentTimeMillis());//获取当前时间
         sComment.setComment_time(date);
-        int insert = sCommentMapper.insert(sComment);
-        if (insert != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return sCommentMapper.insert(sComment) != -1 ? "添加成功" : "添加失败";
     }
 
     @Override

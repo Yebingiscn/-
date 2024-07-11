@@ -61,37 +61,22 @@ public class RoadServiceImpl implements RoadService {
                 .set("road_name", road.getRoad_name()).set("road_indicate", road.getRoad_indicate())
                 .set("area_name", road.getArea_name()).set("type", road.getType())
                 .set("ship_type", road.getShip_type()).set("fee", road.getFee())
-                .set("road_image",road.getRoad_image())
+                .set("road_image", road.getRoad_image())
                 .set("state", road.getState()).set("location_1x", road.getLocation_1x())
                 .set("location_1y", road.getLocation_1y()).set("location_2x", road.getLocation_2x())
                 .set("location_2y", road.getLocation_2y()).set("location_3x", road.getLocation_3x())
                 .set("location_3y", road.getLocation_3y());
-        int update = roadMapping.update(null, updateWrapper);
-        if (update != -1) {
-            return "更新成功";
-        } else {
-            return "更新失败";
-        }
+        return roadMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
     }
 
     @Override
     public String delRoad(int road_id) {
-        int delete = roadMapping.deleteById(road_id);
-        if (delete != -1) {
-            return "删除成功";
-        } else {
-            return "删除失败";
-        }
+        return roadMapping.deleteById(road_id) != -1 ? "删除成功" : "删除失败";
     }
 
     @Override
     public String addRoad(Road road) {
-        int insert = roadMapping.insert(road);
-        if (insert != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return roadMapping.insert(road) != -1 ? "添加成功" : "添加失败";
     }
 
     @Override

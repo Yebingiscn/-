@@ -35,7 +35,7 @@ public class AdminServiceImpl implements AdminService {
         }
         logger.log(Level.INFO, "用户密码" + user1.getPassword());
         logger.log(Level.INFO, "保存的密码" + user1.getPassword());
-        return !user1.getPassword().equals(user.getPassword()) ? "密码错误" : "登陆成功";
+        return user1.getPassword().equals(user.getPassword()) ? "登陆成功" : "密码错误";
     }
 
     @Override
@@ -58,7 +58,7 @@ public class AdminServiceImpl implements AdminService {
     public String addAdmin(User user) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user.getUser_name()).set("is_admin", 1);
-        return -1 != userMapper.update(null, updateWrapper) ? "添加成功" : "添加失败";
+        return userMapper.update(null, updateWrapper) != -1 ? "添加成功" : "添加失败";
     }
 
     @Override

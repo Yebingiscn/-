@@ -44,32 +44,18 @@ public class ShipServiceImpl implements ShipService {
                 .set("area_name", ship.getArea_name()).set("ship_type", ship.getShip_type())
                 .set("ship_owner", ship.getShip_owner()).set("ship_state", ship.getShip_state())
                 .set("ship_img", ship.getShip_img()).set("ship_loginid", ship.getShip_login_id());
-        int update = shipMapping.update(null, updateWrapper);
-        if (update != -1) {
-            return "更新成功";
-        } else {
-            return "更新失败";
-        }
+        return shipMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
     }
 
     @Override
     public String delShip(int ship_id) {
-        int delete = shipMapping.deleteById(ship_id);
-        if (delete != -1) {
-            return "删除成功";
-        } else {
-            return "删除失败";
-        }
+        return shipMapping.deleteById(ship_id) != -1 ? "删除成功" : "删除失败";
     }
 
     @Override
     public String addShip(Ship ship) {
-        int insert = shipMapping.insert(ship);
-        if (insert != -1) {
-            return "添加成功";
-        } else {
-            return "添加失败";
-        }
+        return shipMapping.insert(ship) != -1 ? "添加成功" : "添加失败";
+
     }
 
     @Override
