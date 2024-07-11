@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class ManageOrderServiceImpl implements ManageOrderService {
     @Resource
@@ -58,7 +60,7 @@ public class ManageOrderServiceImpl implements ManageOrderService {
                 .set("order_date", order.getOrder_date()).set("sum_price", order.getSum_price())
                 .set("friend_info", order.getFriend_info()).set("order_state", order.getOrder_state())
                 .set("ship", order.getShip());
-        return orderMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return orderMapping.update(null, updateWrapper) != DATABASE_NOT_FOUND ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class ManageOrderServiceImpl implements ManageOrderService {
             List<Order> orders = orderMapping.selectList(queryWrapper);
             return orders.get(0).getOrder_id();
         } else {
-            return -1;
+            return DATABASE_NOT_FOUND;
         }
     }
 
@@ -104,12 +106,12 @@ public class ManageOrderServiceImpl implements ManageOrderService {
             try {
                 sendEmail(order_id);
             } catch (Exception exception) {
-                logger.log(Level.WARNING,exception.toString());
-                return "发送邮件失败，请联系渔之旅";
+                logger.log(Level.WARNING, exception.toString());
+                return SEND_EMAIL_FAILURE;
             }
-            return "更新成功";
+            return UPDATE_SUCCESS;
         } else {
-            return "更新失败";
+            return UPDATE_FAILURE;
         }
     }
 
@@ -137,6 +139,6 @@ public class ManageOrderServiceImpl implements ManageOrderService {
     public String payCancel(int order_id) {
         UpdateWrapper<Order> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("order_id", order_id).set("order_state", "已取消");
-        return orderMapping.update(null, updateWrapper) != -1 ? "取消成功" : "取消失败";
+        return orderMapping.update(null, updateWrapper) != DATABASE_NOT_FOUND ? CANCEL_SUCCESS : CANCEL_FAILURE;
     }
 }

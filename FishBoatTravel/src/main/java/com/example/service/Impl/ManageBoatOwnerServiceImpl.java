@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
     @Resource
@@ -41,17 +43,17 @@ public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
 
     @Override
     public String addOwner(ShipOwner shipOwner) {
-        return shipOwnerMapper.insert(shipOwner) != -1 ? "添加成功" : "添加失败";
+        return shipOwnerMapper.insert(shipOwner) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
     }
 
 
     @Override
     public String delOwner(int owner_id) {
         try {
-            return shipOwnerMapper.deleteById(owner_id) != -1 ? "删除成功" : "删除失败";
+            return shipOwnerMapper.deleteById(owner_id) != DATABASE_NOT_FOUND ? DELETE_SUCCESS : DELETE_FAILURE;
         } catch (Exception exception) {
             logger.log(Level.WARNING, exception.toString());
-            return "删除失败";
+            return DELETE_FAILURE;
         }
     }
 
@@ -60,7 +62,7 @@ public class ManageBoatOwnerServiceImpl implements ManageBoatOwnerService {
         UpdateWrapper<ShipOwner> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("sowner_id", shipOwner.getOwner_id())
                 .set("ship_owner", shipOwner.getShip_owner()).set("telephone", shipOwner.getTelephone());
-        return shipOwnerMapper.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return shipOwnerMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override

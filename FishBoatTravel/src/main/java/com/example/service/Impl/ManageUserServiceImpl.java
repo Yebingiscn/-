@@ -7,16 +7,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.entity.UserPub;
 import com.example.mapper.UserPubMapper;
 import com.example.service.ManageUserService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import io.micrometer.common.util.StringUtils;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.example.config.ResponseCodeConfig.*;
 
 @Service
 public class ManageUserServiceImpl implements ManageUserService {
     @Resource
     UserPubMapper userPubMapper;
+    Logger logger;
 
     @Override
     public IPage<UserPub> getAllUser(int current_page, int total) {
@@ -41,14 +46,14 @@ public class ManageUserServiceImpl implements ManageUserService {
     public String blockUser(String user_name) {
         UpdateWrapper<UserPub> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user_name).set("is_admin", -1);
-        return userPubMapper.update(null, updateWrapper) != -1 ? "操作成功" : "操作失败";
+        return userPubMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? OPERATION_SUCCESS : OPERATION_FAILURE;
     }
 
     @Override
     public String unBlockUser(String user_name) {
         UpdateWrapper<UserPub> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user_name).set("is_admin", 0);
-        return userPubMapper.update(null, updateWrapper) != -1 ? "操作成功" : "操作失败";
+        return userPubMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? OPERATION_SUCCESS : OPERATION_FAILURE;
     }
 
     @Override
@@ -63,13 +68,13 @@ public class ManageUserServiceImpl implements ManageUserService {
         queryWrapper.eq("user_name", user_name); //ne不等于
         List<UserPub> userPubs = userPubMapper.selectList(queryWrapper);
         UserPub userPub = userPubs.get(0);
-        System.out.println(userPub);
+        logger.log(Level.INFO, userPub.toString());
         if (!StringUtils.isBlank(userPub.getTelephone()) ||
                 !StringUtils.isBlank(userPub.getMail()) ||
                 userPub.getAge() != 0) {
-            return "信息已添加";
+            return ADD_SUCCESS;
         } else {
-            return "信息未添加";
+            return ADD_FAILURE;
         }
     }
 
@@ -78,7 +83,7 @@ public class ManageUserServiceImpl implements ManageUserService {
         UpdateWrapper<UserPub> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", userPub.getUser_name())
                 .set("telephone", userPub.getTelephone()).set("age", userPub.getAge());
-        return userPubMapper.update(null, updateWrapper) != -1 ? "添加成功" : "添加失败";
+        return userPubMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
     }
 
     @Override
@@ -96,7 +101,7 @@ public class ManageUserServiceImpl implements ManageUserService {
         UpdateWrapper<UserPub> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_id", userPub.getUser_id())
                 .set("password", userPub.getPassword());
-        return userPubMapper.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return userPubMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override
@@ -106,7 +111,7 @@ public class ManageUserServiceImpl implements ManageUserService {
                 .set("sex", userPub.getSex())
                 .set("telephone", userPub.getTelephone()).set("age", userPub.getAge())
                 .set("mail", userPub.getMail()).set("user_img", userPub.getUser_img());
-        return userPubMapper.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return userPubMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override

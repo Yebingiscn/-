@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.List;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class CommentServiceImpl implements CommentService {
     @Resource
@@ -19,7 +21,7 @@ public class CommentServiceImpl implements CommentService {
     public String addComment(Comment comment) {
         Date date = new Date(System.currentTimeMillis());//获取当前时间
         comment.setRate_time(date);
-        return commentMapper.insert(comment) != -1 ? "添加成功" : "添加失败";
+        return commentMapper.insert(comment) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
     }
 
     @Override

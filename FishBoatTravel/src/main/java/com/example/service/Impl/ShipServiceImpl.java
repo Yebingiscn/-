@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class ShipServiceImpl implements ShipService {
     @Resource
@@ -44,17 +46,17 @@ public class ShipServiceImpl implements ShipService {
                 .set("area_name", ship.getArea_name()).set("ship_type", ship.getShip_type())
                 .set("ship_owner", ship.getShip_owner()).set("ship_state", ship.getShip_state())
                 .set("ship_img", ship.getShip_img()).set("ship_loginid", ship.getShip_login_id());
-        return shipMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return shipMapping.update(null, updateWrapper) != -1 ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override
     public String delShip(int ship_id) {
-        return shipMapping.deleteById(ship_id) != -1 ? "删除成功" : "删除失败";
+        return shipMapping.deleteById(ship_id) != DATABASE_NOT_FOUND ? DELETE_SUCCESS : DELETE_FAILURE;
     }
 
     @Override
     public String addShip(Ship ship) {
-        return shipMapping.insert(ship) != -1 ? "添加成功" : "添加失败";
+        return shipMapping.insert(ship) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
 
     }
 

@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class AreaServiceImpl implements AreaService {
     @Resource
@@ -31,9 +33,9 @@ public class AreaServiceImpl implements AreaService {
             Area area = new Area();
             area.setArea_name(area_name);
             area.setArea_province(area_province);
-            return areaMapping.insert(area) != -1 ? "添加成功" : "添加失败";
+            return areaMapping.insert(area) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
         } else {
-            return "添加成功";
+            return ADD_SUCCESS;
         }
     }
 
@@ -42,7 +44,7 @@ public class AreaServiceImpl implements AreaService {
         UpdateWrapper<Area> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("area_id", area.getArea_id())
                 .set("area_content", area.getArea_content());
-        return areaMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return areaMapping.update(null, updateWrapper) != -1 ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override

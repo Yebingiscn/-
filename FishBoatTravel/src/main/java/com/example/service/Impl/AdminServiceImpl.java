@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class AdminServiceImpl implements AdminService {
     @Resource
@@ -26,16 +28,16 @@ public class AdminServiceImpl implements AdminService {
         map.put("user_name", user.getUser_name());
         List<User> users = userMapper.selectByMap(map);
         if (users.isEmpty()) {
-            return "账户不存在，请先登录";
+            return LOGGING_FAILURE;
         }
         User user1 = users.get(0);
         logger.log(Level.INFO, user.toString());
         if (user1.getIs_admin() != 1) {
-            return "你不是管理员";
+            return NON_ADMINISTRATORS;
         }
         logger.log(Level.INFO, "用户密码" + user1.getPassword());
         logger.log(Level.INFO, "保存的密码" + user1.getPassword());
-        return user1.getPassword().equals(user.getPassword()) ? "登陆成功" : "密码错误";
+        return user1.getPassword().equals(user.getPassword()) ? LOGGING_SUCCESS : PASSWORD_ERROR;
     }
 
     @Override
@@ -58,13 +60,13 @@ public class AdminServiceImpl implements AdminService {
     public String addAdmin(User user) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user.getUser_name()).set("is_admin", 1);
-        return userMapper.update(null, updateWrapper) != -1 ? "添加成功" : "添加失败";
+        return userMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
     }
 
     @Override
     public String delAdmin(User user) {
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("user_name", user.getUser_name()).set("is_admin", 0);
-        return userMapper.update(null, updateWrapper) != -1 ? "删除成功":"删除失败";
+        return userMapper.update(null, updateWrapper) != DATABASE_NOT_FOUND ? DELETE_SUCCESS : DELETE_FAILURE;
     }
 }

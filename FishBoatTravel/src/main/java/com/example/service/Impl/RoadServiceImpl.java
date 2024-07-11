@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class RoadServiceImpl implements RoadService {
     @Resource
@@ -66,17 +68,17 @@ public class RoadServiceImpl implements RoadService {
                 .set("location_1y", road.getLocation_1y()).set("location_2x", road.getLocation_2x())
                 .set("location_2y", road.getLocation_2y()).set("location_3x", road.getLocation_3x())
                 .set("location_3y", road.getLocation_3y());
-        return roadMapping.update(null, updateWrapper) != -1 ? "更新成功" : "更新失败";
+        return roadMapping.update(null, updateWrapper) != DATABASE_NOT_FOUND ? UPDATE_SUCCESS : UPDATE_FAILURE;
     }
 
     @Override
     public String delRoad(int road_id) {
-        return roadMapping.deleteById(road_id) != -1 ? "删除成功" : "删除失败";
+        return roadMapping.deleteById(road_id) != DATABASE_NOT_FOUND ? DELETE_SUCCESS : DELETE_FAILURE;
     }
 
     @Override
     public String addRoad(Road road) {
-        return roadMapping.insert(road) != -1 ? "添加成功" : "添加失败";
+        return roadMapping.insert(road) != DATABASE_NOT_FOUND ? ADD_SUCCESS : ADD_FAILURE;
     }
 
     @Override

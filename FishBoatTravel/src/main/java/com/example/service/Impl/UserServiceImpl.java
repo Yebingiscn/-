@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.config.ResponseCodeConfig.*;
+
 @Service
 public class UserServiceImpl implements UserService {
     @Resource
@@ -32,52 +34,58 @@ public class UserServiceImpl implements UserService {
     Logger logger;
 
     @Override
-    public void getVerifyCode(String email) {
+    public String getVerifyCode(String email) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setSubject("[渔之旅]注册验证码");
         Random random = new Random();
         int code = random.nextInt(8999) + 1000;
-        logger.log(Level.INFO,String.valueOf(code));
+        logger.log(Level.INFO, String.valueOf(code));
         System.out.println(code);
         template.opsForValue().set("verify:code" + email, code + "", 3, TimeUnit.MINUTES);
         simpleMailMessage.setText("欢迎加入渔之旅\n注册验证码为：" + code + "，三分钟内有效，非本人操作请忽略");
         simpleMailMessage.setTo(email);
         simpleMailMessage.setFrom(from);
-        mailSender.send(simpleMailMessage);
+        try {
+            mailSender.send(simpleMailMessage);
+            return VERIFY_CODE_SENT_SUCCESS;
+        } catch (Exception exception) {
+            logger.log(Level.WARNING, exception.toString());
+            return VERIFY_CODE_SENT_FAILURE;
+        }
     }
 
     @Override
     public String toSign(User user) {
         if (doVerify(user.getMail(), user.getMail_code())) {
-            return userMapper.insert(user) == -1 ? "插入失败" : "注册成功";
+            return userMapper.insert(user) != DATABASE_NOT_FOUND ? SIGN_SUCCESS : SIGN_FAILURE;
         }
-        return "邮件验证码错误";
+        return VERIFY_CODE_ERROR;
     }
 
     @Override
     public String toLogin(User user) {
-        System.out.println(user);
+        logger.log(Level.INFO, user.toString());
         Map<String, Object> map = new HashMap<>();
         map.put("user_name", user.getUser_name());
         List<User> users = userMapper.selectByMap(map);
         logger.log(Level.INFO, users.toString());
         if (users.isEmpty()) {
-            return "账户不存在，请先登录";
+            return LOGGING_FAILURE;
         }
         User user1 = users.get(0);
         if (user1.getIs_admin() == -1) {
-            return "你已被封禁，请联系管理员";
+            return USER_BLOCK;
         }
-        return user1.getPassword().equals(user.getPassword()) ? "登录成功" : "密码错误";
+        return user1.getPassword().equals(user.getPassword()) ? LOGGING_SUCCESS : PASSWORD_ERROR;
     }
 
     public boolean doVerify(String mail, String verify) {
         String isExitsInRedis = template.opsForValue().get("verify:code" + mail);
         logger.log(Level.INFO, isExitsInRedis + " " + verify);
-        if (StringUtils.isBlank(isExitsInRedis) || !isExitsInRedis.equals(verify)) {
-            return false;
+        if (!StringUtils.isBlank(isExitsInRedis) && isExitsInRedis.equals(verify)) {
+            template.delete("verify:code" + mail);
+            return true;
         }
-        template.delete("verify:code" + mail);
-        return true;
+        return false;
     }
 }
